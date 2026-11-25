@@ -1,0 +1,36 @@
+# Local demonstration only. On the platform, the DB_* variables are injected.
+services:
+  web:
+    build: .
+    ports:
+      - "127.0.0.1:${HOST_PORT:-8080}:8080"
+    environment:
+      DB_HOST: database
+      DB_NAME: soutenance
+      DB_USER: soutenance
+      DB_PASSWORD: local-only
+      APP_TITLE: ${APP_TITLE:-}
+      TEAM_NAME: ${TEAM_NAME:-}
+      GRADE_THRESHOLD: ${GRADE_THRESHOLD:-}
+      FLEE_MODE: ${FLEE_MODE:-}
+      FLEE_RADIUS: ${FLEE_RADIUS:-}
+      ACCENT_COLOR: ${ACCENT_COLOR:-}
+      JURY_CODE: ${JURY_CODE:-}
+    depends_on:
+      database:
+        condition: service_healthy
+  database:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: soutenance
+      POSTGRES_USER: soutenance
+      POSTGRES_PASSWORD: local-only
+    volumes:
+      - data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-h", "127.0.0.1", "-U", "soutenance"]
+      interval: 2s
+      timeout: 3s
+      retries: 20
+volumes:
+  data:

@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ config.title }}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body style="--accent: {{ config.accent }}"
+      data-threshold="{{ config.threshold }}"
+      data-flee-mode="{{ config.flee_mode }}"
+      data-flee-radius="{{ config.flee_radius }}"
+      data-grade-max="{{ grade_max }}">
+  <main>
+    <header>
+      <h1>{{ config.title }}</h1>
+      <p>Membres du jury, quelle note pour <strong>{{ config.team }}</strong> ?</p>
+    </header>
+
+    <section id="arena" aria-label="Choix de la note"></section>
+
+    <p id="database-error" class="banner" role="alert" hidden></p>
+    <p id="toast" class="banner success" role="status" hidden></p>
+
+    <section class="stats" aria-label="Statistiques enregistrées dans PostgreSQL">
+      <div><span id="average">–</span>moyenne du jury</div>
+      <div><span id="total">–</span>notes enregistrées</div>
+      <div><span id="escape-total">–</span>mauvaises notes esquivées</div>
+      <div><span id="visits">–</span>visites</div>
+    </section>
+
+    <div class="columns">
+      <section class="card">
+        <h2>Livre d'or du jury</h2>
+        <ul id="history"></ul>
+      </section>
+
+      <div>
+        <section class="card">
+          <h2>Preuve de persistance</h2>
+          <p>Instance qui répond : <code id="instance">–</code></p>
+          <p>Démarrée le <span id="started">–</span></p>
+          <p><strong id="before-start">–</strong> note(s) enregistrée(s) avant ce démarrage,
+             toujours là grâce à PostgreSQL.</p>
+          <p>Première note : <span id="first">–</span></p>
+        </section>
+
+        <section class="card">
+          <h2>Les notes les plus convoitées en vain</h2>
+          <ol id="escapes"></ol>
+        </section>
+
+        <section class="card">
+          <h2>Variables d'environnement</h2>
+          <dl>
+            <dt>APP_TITLE</dt><dd>{{ config.title }}</dd>
+            <dt>TEAM_NAME</dt><dd>{{ config.team }}</dd>
+            <dt>GRADE_THRESHOLD</dt><dd>{{ config.threshold }}</dd>
+            <dt>FLEE_MODE</dt><dd>{{ config.flee_mode }}</dd>
+            <dt>FLEE_RADIUS</dt><dd>{{ config.flee_radius }} px</dd>
+            <dt>ACCENT_COLOR</dt><dd><i class="swatch"></i>{{ config.accent }}</dd>
+            <dt>JURY_CODE</dt>
+            <dd>{{ '•••••• (secret défini)' if code_required else 'non défini' }}</dd>
+          </dl>
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <dialog id="dialog">
+    <form id="form">
+      <h2>Attribuer <span id="chosen"></span>/{{ grade_max }}</h2>
+      <label>Votre nom
+        <input name="juror" required maxlength="60" autocomplete="name">
+      </label>
+      <label>Un mot pour l'équipe (facultatif)
+        <textarea name="comment" maxlength="280" rows="3"></textarea>
+      </label>
+      {% if code_required %}
+      <label>Code jury
+        <input name="code" type="password" required autocomplete="off">
+      </label>
+      {% endif %}
+      <p id="form-error" class="banner" role="alert" hidden></p>
+      <menu>
+        <button type="button" id="cancel">Annuler</button>
+        <button type="submit" class="primary">Enregistrer</button>
+      </menu>
+    </form>
+  </dialog>
+
+  <script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>
